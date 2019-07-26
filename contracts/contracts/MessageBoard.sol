@@ -18,7 +18,7 @@ contract MessageBoard {
     
     //Declaring an event
 
-    event MessageCreated(Message message);
+    event MessageCreated(string message);
 
     //Constructor
     constructor() public {
@@ -45,7 +45,7 @@ contract MessageBoard {
         //require() is throwing error, if the input is not true
         //require(userExists(msg.sender));
         messageCount++;
-        emit MessageCreated(Message(text, users[msg.sender]));
+        emit MessageCreated(text);
         return true;
     }
     

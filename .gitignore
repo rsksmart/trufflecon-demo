@@ -1,3 +1,7 @@
+
+# contract build
+/contracts/build
+
 # Logs
 logs
 *.log
