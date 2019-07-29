@@ -14,25 +14,26 @@ class App extends Component{
     const that = this;
     var $page = {};
 
-    $page.user_address = '0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826';
-    $page.contract_address = '0xdac5481925a298b95bf5b54c35b68fc6fc2ef423';
+    $page.contract_address = '0xa0e51f2ecdc3f4318eff9bf7477d8bfe03938088';
     var apiUrl = "https://backend.explorer.testnet.rsk.co/api?module=events&action=getAllEventsByAddress&address=" + $page.contract_address;
     var web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:4445/websocket"));
     var transform = function(input){
       //TODO: resolve it more elegantly
-      var it = input.substring(136);
+      var it = input.substring(128);
       var filtered = it.slice(0, ((it.search("00") % 2) === 1) ? it.search("00") + 1 : it.search("00"));
       return web3.utils.toAscii("0x" + filtered).substring(1);
     }
 
-    //const result = await axios.get(apiUrl);
-    //var oldMessages = result.data.data.map(i => i.args[0]);
-    var oldMessages = ["Hola!","Hi!","RSK(L)Truffle"];
+    const result = await axios.get(apiUrl);
+    console.log(result.data.data)
+    var oldMessages = result.data.data.map(i => transform(i.data));
+    //var oldMessages = ["Hola!","Hi!","RSK(L)Truffle"];
     that.setState({ messages: oldMessages });
 
     web3.eth.subscribe('newBlockHeaders', (error, result) => {
-      if (error) {
+      if (error || !result) {
         console.error(error);
+        return;
       }
       console.log("newblock " + result.number);
       web3.eth.getBlock(result.number, true).then(function(block){
