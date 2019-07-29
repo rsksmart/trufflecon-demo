@@ -2,6 +2,9 @@
 # contract build
 /contracts/build
 
+# secrets
+.secret
+
 # Logs
 logs
 *.log
