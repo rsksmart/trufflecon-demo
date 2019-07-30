@@ -15,8 +15,8 @@ class App extends Component{
     var $page = {};
 
     $page.contract_address = '0xa0e51f2ecdc3f4318eff9bf7477d8bfe03938088';
-    var apiUrl = "https://backend.explorer.testnet.rsk.co/api?module=events&action=getAllEventsByAddress&address=" + $page.contract_address;
-    var web3 = new Web3(new Web3.providers.WebsocketProvider("ws://127.0.0.1:4445/websocket"));
+    var apiUrl = "api?module=events&action=getAllEventsByAddress&address=" + $page.contract_address;
+    var web3 = new Web3(new Web3.providers.WebsocketProvider("ws://52.67.232.22:4445/websocket"));
     var transform = function(input){
       //TODO: resolve it more elegantly
       var it = input.substring(128);
