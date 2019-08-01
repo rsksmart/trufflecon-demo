@@ -13,12 +13,17 @@ class App extends Component{
 
     const that = this;
     var $page = {};
+    var actualBlock = null;
 
     $page.contract_address = '0xa0e51f2ecdc3f4318eff9bf7477d8bfe03938088';
     var apiUrl = "api?module=events&action=getAllEventsByAddress&address=" + $page.contract_address;
     var web3 = new Web3(new Web3.providers.WebsocketProvider("ws://52.67.232.22:4445/websocket"));
-    var transform = function(input){
+    var transform = function(input){      
       //TODO: resolve it more elegantly
+      if (input.length == 202){
+        input = "0x" + input.substring(10);
+      }
+
       var it = input.substring(128);
       var filtered = it.slice(0, ((it.search("00") % 2) === 1) ? it.search("00") + 1 : it.search("00"));
       return web3.utils.toAscii("0x" + filtered).substring(1);
@@ -35,14 +40,21 @@ class App extends Component{
         console.error(error);
         return;
       }
+
+      if (actualBlock == result.number) {
+        return;
+      }
+      else{
+        actualBlock = result.number;
+      }
+
       console.log("newblock " + result.number);
       web3.eth.getBlock(result.number, true).then(function(block){
         block.transactions.forEach(function(e) {
-          if(e.to.toLowerCase() !== $page.contract_address) return;
-
+          if(e.to.toLowerCase() !== $page.contract_address) return;          
           var message = transform(e.input);
           const { messages: allMsg } = that.state;
-          allMsg.push(message);
+          allMsg.unshift(message);
           that.setState({ messages: allMsg });
           console.log(message);
         });
