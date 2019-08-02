@@ -15,12 +15,12 @@ class App extends Component{
     var $page = {};
     var actualBlock = null;
 
-    $page.contract_address = '0xa0e51f2ecdc3f4318eff9bf7477d8bfe03938088';
+    $page.contract_address = '0x969f812F4308BFEd193200BEcE2a1FdcfDCB4F60';
     var apiUrl = "api?module=events&action=getAllEventsByAddress&address=" + $page.contract_address;
     var web3 = new Web3(new Web3.providers.WebsocketProvider("ws://52.67.232.22:4445/websocket"));
-    var transform = function(input){      
+    var transform = function(input, apiCall){      
       //TODO: resolve it more elegantly
-      if (input.length == 202){
+      if (!apiCall){
         input = "0x" + input.substring(10);
       }
 
@@ -30,10 +30,13 @@ class App extends Component{
     }
 
     const result = await axios.get(apiUrl);
-    console.log(result.data.data)
-    var oldMessages = result.data.data.map(i => transform(i.data));
-    //var oldMessages = ["Hola!","Hi!","RSK(L)Truffle"];
+    var oldMessages = result.data.data.map(i => transform(i.data, true));
+    var addresses = result.data.data.map(i => i.address);
+
     that.setState({ messages: oldMessages });
+    that.setState({ addresses });
+
+
 
     web3.eth.subscribe('newBlockHeaders', (error, result) => {
       if (error || !result) {
@@ -52,7 +55,7 @@ class App extends Component{
       web3.eth.getBlock(result.number, true).then(function(block){
         block.transactions.forEach(function(e) {
           if(e.to.toLowerCase() !== $page.contract_address) return;          
-          var message = transform(e.input);
+          var message = transform(e.input, false);
           const { messages: allMsg } = that.state;
           allMsg.unshift(message);
           that.setState({ messages: allMsg });
@@ -67,8 +70,9 @@ class App extends Component{
 
     return (
       <div className="App">
-        <ul id="">
-          { this.state.messages.map((m,i) => <li key={i}>{m}</li>) }
+        <button onClick={()=>{ console.log(this.state.addresses.length); var winner = Math.floor(Math.random() * Math.floor(this.state.addresses.length)); console.log(winner); alert(this.state.addresses[winner]); document.querySelector('li[data-index="' + winner + '"]').classList.add("winner"); }}>spin!</button>
+        <ul>
+          { this.state.messages.map((m,i) => <li key={i} data-index={i}>{m}</li>) }
         </ul>
       </div>
     );
